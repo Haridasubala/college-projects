@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AttendTrack Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F7FA;--surface:#FFFFFF;--surface2:#F0F2F7;--surface3:#E8EBF4;
+  --border:#DDE1EE;--border2:#C8CEDF;
+  --text:#1A1D2E;--text2:#5A6080;--text3:#9098B8;
+  --green:#1A9E5C;--green-bg:rgba(26,158,92,.09);--green-dim:#148048;
+  --red:#D93A5A;--red-bg:rgba(217,58,90,.09);
+  --amber:#C07A10;--amber-bg:rgba(192,122,16,.09);
+  --blue:#2563EB;--blue-bg:rgba(37,99,235,.09);
+  --purple:#7C3AED;--purple-bg:rgba(124,58,237,.09);
+  --cyan:#0891B2;--cyan-bg:rgba(8,145,178,.09);
+  --radius:10px;--radius-lg:16px;
+}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+
+/* TOPBAR */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:200;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.logo{font-size:18px;font-weight:800;letter-spacing:-0.5px;display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--green),var(--blue));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-text span{color:var(--green)}
+
+/* NAV TABS */
+.nav-tabs{display:flex;gap:2px;background:var(--surface2);padding:4px;border-radius:10px;border:1px solid var(--border)}
+.nav-tab{padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text2);transition:.2s;white-space:nowrap;letter-spacing:0.2px}
+.nav-tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.nav-tab:hover:not(.active){color:var(--text);background:rgba(0,0,0,.04)}
+
+/* ROLE TOGGLE */
+.role-toggle{display:flex;gap:6px;align-items:center}
+.role-btn{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text2);transition:.2s;letter-spacing:0.5px;text-transform:uppercase}
+.role-btn.active{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}
+.role-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:1px}
+
+/* MAIN */
+.main{padding:28px;max-width:1200px;margin:0 auto;width:100%}
+
+/* FILTER BAR */
+.filter-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:20px;display:flex;gap:14px;flex-wrap:wrap;align-items:end}
+.fgroup{display:flex;flex-direction:column;gap:5px;min-width:150px}
+.flabel{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+
+/* INPUTS */
+select,input[type=text],input[type=date],input[type=number]{
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:500;padding:9px 12px;
+  border:1px solid var(--border);border-radius:8px;background:var(--surface2);
+  color:var(--text);outline:none;width:100%;transition:.15s;
+}
+select:focus,input:focus{border-color:var(--blue);background:var(--surface3)}
+select option{background:var(--surface2)}
+
+/* BUTTONS */
+.btn{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;padding:9px 16px;border-radius:8px;border:1px solid var(--border);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:.2s;background:var(--surface2);color:var(--text);letter-spacing:0.2px;white-space:nowrap}
+.btn:hover{background:var(--surface3);border-color:var(--border2)}
+.btn.primary{background:var(--green);color:#000;border-color:var(--green)}
+.btn.primary:hover{background:var(--green-dim);border-color:var(--green-dim)}
+.btn.danger{background:var(--red-bg);color:var(--red);border-color:transparent}
+.btn.danger:hover{background:rgba(255,92,122,.18)}
+.btn.blue{background:var(--blue-bg);color:var(--blue);border-color:transparent}
+.btn.amber{background:var(--amber-bg);color:var(--amber);border-color:transparent}
+.btn.purple{background:var(--purple-bg);color:var(--purple);border-color:transparent}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--blue))}
+.stat-label{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.stat-value{font-size:26px;font-weight:800;line-height:1;color:var(--accent,var(--text))}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* PANEL */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.panel-title{font-size:16px;font-weight:800;letter-spacing:-0.3px}
+.panel-note{font-size:12px;color:var(--text2);margin-top:3px;font-weight:500}
+.panel-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);gap:12px;flex-wrap:wrap}
+.table-title{font-size:14px;font-weight:700}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:10px 16px;text-align:left;background:var(--surface2);border-bottom:1px solid var(--border)}
+td{padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;font-weight:500}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-amber{background:var(--amber-bg);color:var(--amber)}
+.badge-blue{background:var(--blue-bg);color:var(--blue)}
+.badge-purple{background:var(--purple-bg);color:var(--purple)}
+.badge-cyan{background:var(--cyan-bg);color:var(--cyan)}
+
+/* SECTIONS */
+.section{display:none}
+.section.active{display:block}
+
+/* PROGRESS BAR */
+.pbar-wrap{background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;width:100px;display:inline-block;vertical-align:middle;margin-left:8px}
+.pbar-fill{height:100%;border-radius:4px;transition:.3s}
+
+/* HISTORY */
+.history-list{display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto}
+.history-item{padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);font-size:12px;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:8px}
+.history-item .h-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+
+/* THRESHOLD CARD */
+.threshold-result{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+.tcard{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.tcard-label{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.tcard-value{font-size:22px;font-weight:800}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none}
+.toast{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transform:translateY(8px);transition:.3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{background:#fff;color:var(--green);border:1px solid rgba(26,158,92,.25);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.toast.error{background:#fff;color:var(--red);border:1px solid rgba(217,58,90,.25);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.toast.info{background:#fff;color:var(--blue);border:1px solid rgba(37,99,235,.25);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+
+/* UNDO AREA */
+.undo-panel{background:var(--amber-bg);border:1px solid rgba(255,170,60,.2);border-radius:10px;padding:12px 16px;margin-top:10px;display:none}
+.undo-panel.show{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap}
+
+/* DATA STRUCTURES INFO */
+.ds-info{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ds-chip{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'JetBrains Mono',monospace}
+.ds-chip span{color:var(--cyan)}
+
+.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+.empty{padding:30px;color:var(--text3);text-align:center;font-weight:500}
+.divider{height:1px;background:var(--border);margin:16px 0}
+.msg{font-size:13px;margin-top:8px;font-weight:500}
+.msg.ok{color:var(--green)}
+.msg.err{color:var(--red)}
+.section-title{font-size:20px;font-weight:800;margin-bottom:4px;letter-spacing:-0.5px}
+.section-sub{font-size:13px;color:var(--text2);margin-bottom:20px;font-weight:500}
+
+/* Faculty view */
+.faculty-header{background:linear-gradient(135deg,var(--purple-bg),var(--blue-bg));border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.faculty-icon{width:44px;height:44px;background:var(--purple-bg);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
+
+/* Below limit banner */
+.below-banner{background:var(--red-bg);border:1px solid rgba(255,92,122,.2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+
+/* Percentage bar inline */
+.pct-cell{display:flex;align-items:center;gap:8px;white-space:nowrap}
+
+/* Attendance grid */
+.att-grid{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.att-dot{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;cursor:pointer;transition:.15s;position:relative}
+.att-dot:hover{transform:scale(1.15)}
+.att-dot[title]:hover::after{content:attr(title);position:absolute;bottom:26px;left:50%;transform:translateX(-50%);background:var(--surface3);border:1px solid var(--border);border-radius:5px;padding:3px 7px;font-size:10px;white-space:nowrap;z-index:10;pointer-events:none}
+
+@media(max-width:900px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .threshold-result{grid-template-columns:repeat(2,1fr)}
+  .filter-bar{flex-direction:column}
+  .nav-tabs{flex-wrap:wrap}
+}
+@media(max-width:600px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .topbar{flex-wrap:wrap;height:auto;padding:10px 16px;gap:8px}
+}
+</style>
+</head>
+<body>
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">📋</div>
+    <div class="logo-text">Attend<span>Track</span> <span style="font-size:11px;color:var(--text3);font-weight:500;margin-left:4px">Pro</span></div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('students')">Students</button>
+    <button class="nav-tab" onclick="switchTab('mark')">Mark Attendance</button>
+    <button class="nav-tab" onclick="switchTab('threshold')">My Threshold</button>
+    <button class="nav-tab" onclick="switchTab('faculty')">Faculty View</button>
+    <button class="nav-tab" onclick="switchTab('history')">Undo / History</button>
+  </div>
+  <div class="role-toggle">
+    <span class="role-label">Role:</span>
+    <button class="role-btn active" id="roleStudent" onclick="setRole('student')">Student</button>
+    <button class="role-btn" id="roleFaculty" onclick="setRole('faculty')">Faculty</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="stats-row" id="statsRow"></div>
+
+  <!-- ===== STUDENTS TAB ===== -->
+  <div class="section active" id="section-students">
+    <div class="section-title">Student Database</div>
+    <div class="section-sub">Manage students across departments, years and batches. Data stored in Array with Double-Ended Queue for attendance.</div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Add New Student</div>
+          <div class="panel-note">Arrays store student records. Deque manages attendance operations.</div>
+        </div>
+        <div class="panel-actions">
+          <button class="btn amber" onclick="undoLast()">↩ Undo Last</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;flex-wrap:wrap">
+        <div class="fgroup">
+          <span class="flabel">Name</span>
+          <input type="text" id="addName" placeholder="Student name"/>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Roll No</span>
+          <input type="number" id="addRoll" placeholder="e.g. 101"/>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Department</span>
+          <select id="addDept">
+            <option value="AI">AI</option>
+            <option value="CSE">CSE</option>
+            <option value="MECH">Mechanical</option>
+            <option value="CIVIL">Civil</option>
+            <option value="ECE">Electronics</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Year</span>
+          <select id="addYear">
+            <option value="1">1st Year</option>
+            <option value="2">2nd Year</option>
+            <option value="3">3rd Year</option>
+            <option value="4">4th Year</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Batch</span>
+          <select id="addBatch">
+            <option value="A">Batch A</option>
+            <option value="B">Batch B</option>
+            <option value="C">Batch C</option>
+            <option value="D">Batch D</option>
+          </select>
+        </div>
+        <div class="fgroup" style="justify-content:flex-end;padding-top:18px">
+          <button class="btn primary" onclick="addStudent()">+ Add Student</button>
+        </div>
+      </div>
+      <div class="ds-info">
+        <div class="ds-chip">Array: <span>students[]</span></div>
+        <div class="ds-chip">Deque: <span>attendanceDeque</span></div>
+        <div class="ds-chip">Queue: <span>pendingQueue</span></div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="fgroup">
+        <span class="flabel">Search</span>
+        <input type="text" id="searchStudents" placeholder="Name or Roll No..." oninput="renderStudentTable()"/>
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Department</span>
+        <select id="filterDept" onchange="renderStudentTable()">
+          <option value="">All Depts</option>
+          <option value="AI">AI</option>
+          <option value="CSE">CSE</option>
+          <option value="MECH">Mechanical</option>
+          <option value="CIVIL">Civil</option>
+          <option value="ECE">Electronics</option>
+        </select>
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Year</span>
+        <select id="filterYear" onchange="renderStudentTable()">
+          <option value="">All Years</option>
+          <option value="1">1st Year</option>
+          <option value="2">2nd Year</option>
+          <option value="3">3rd Year</option>
+          <option value="4">4th Year</option>
+        </select>
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Batch</span>
+        <select id="filterBatch" onchange="renderStudentTable()">
+          <option value="">All Batches</option>
+          <option value="A">Batch A</option>
+          <option value="B">Batch B</option>
+          <option value="C">Batch C</option>
+          <option value="D">Batch D</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-header">
+        <span class="table-title">All Students</span>
+        <span id="studentCountLabel" style="font-size:12px;color:var(--text3)"></span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Roll No</th><th>Name</th><th>Dept</th><th>Year</th><th>Batch</th>
+            <th>Present</th><th>Absent</th><th>Attendance %</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="studentTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== MARK ATTENDANCE TAB ===== -->
+  <div class="section" id="section-mark">
+    <div class="section-title">Mark Attendance</div>
+    <div class="section-sub">Uses Double-Ended Deque (insertRear) to queue attendance entries, and Queue (FIFO) to process them.</div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Mark Individual or Bulk Attendance</div>
+          <div class="panel-note">Entries added to Deque (rear) → processed from front as Queue</div>
+        </div>
+        <div class="panel-actions">
+          <button class="btn blue" onclick="markBulkPresent()">✔ Mark All Present</button>
+          <button class="btn danger" onclick="markBulkAbsent()">✖ Mark All Absent</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:12px">
+        <div class="fgroup">
+          <span class="flabel">Department</span>
+          <select id="markDept" onchange="populateMarkStudents()">
+            <option value="">-- Select Dept --</option>
+            <option value="AI">AI</option>
+            <option value="CSE">CSE</option>
+            <option value="MECH">Mechanical</option>
+            <option value="CIVIL">Civil</option>
+            <option value="ECE">Electronics</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Year</span>
+          <select id="markYear" onchange="populateMarkStudents()">
+            <option value="">-- Select Year --</option>
+            <option value="1">1st Year</option>
+            <option value="2">2nd Year</option>
+            <option value="3">3rd Year</option>
+            <option value="4">4th Year</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Batch</span>
+          <select id="markBatch" onchange="populateMarkStudents()">
+            <option value="">-- Select Batch --</option>
+            <option value="A">Batch A</option>
+            <option value="B">Batch B</option>
+            <option value="C">Batch C</option>
+            <option value="D">Batch D</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Date</span>
+          <input type="date" id="markDate"/>
+        </div>
+        <div class="fgroup" style="justify-content:flex-end;padding-top:18px">
+          <button class="btn primary" onclick="submitMarkAttendance()">Submit Attendance</button>
+        </div>
+      </div>
+
+      <div class="ds-info" style="margin-bottom:12px">
+        <div class="ds-chip">Deque size: <span id="dequeSize">0</span></div>
+        <div class="ds-chip">Queue pending: <span id="queueSize">0</span></div>
+      </div>
+
+      <!-- EXCEPTION BOX -->
+      <div style="background:var(--amber-bg);border:1px solid rgba(192,122,16,.2);border-radius:12px;padding:16px 18px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:18px">⚡</span>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--text)">Quick Mark — Enter Absent Roll Numbers</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:2px">Type the roll numbers of <strong>absent</strong> students separated by commas. Everyone else in the loaded batch will be marked <strong style="color:var(--green)">Present</strong> automatically.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div style="flex:1;min-width:240px">
+            <input type="text" id="absentRollInput" placeholder="e.g. 11001, 11005, 11023" oninput="previewExceptions()" style="font-family:'JetBrains Mono',monospace;font-size:13px"/>
+          </div>
+          <button class="btn primary" onclick="applyExceptionMark()">✔ Apply &amp; Mark All</button>
+          <button class="btn" onclick="clearExceptionInput()">✕ Clear</button>
+        </div>
+        <div id="exceptionPreview" style="margin-top:10px;display:none">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <span style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Will be Absent:</span>
+            <div id="absentTags" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+            <span id="presentCountLabel" style="font-size:11px;color:var(--text3);margin-left:4px"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="bulkMarkArea"><div class="empty" style="padding:16px">Select Dept, Year, and Batch to load students for marking.</div></div>
+    </div>
+  </div>
+
+  <!-- ===== THRESHOLD (STUDENT) TAB ===== -->
+  <div class="section" id="section-threshold">
+    <div class="section-title">My Threshold Planner</div>
+    <div class="section-sub">Set your personal attendance goal and see how many classes you need to attend to reach it.</div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Personal Threshold Goal</div>
+        <div class="panel-actions">
+          <button class="btn" onclick="setThresholdPreset(75)">75%</button>
+          <button class="btn" onclick="setThresholdPreset(80)">80%</button>
+          <button class="btn" onclick="setThresholdPreset(85)">85%</button>
+          <button class="btn" onclick="setThresholdPreset(90)">90%</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+        <div class="fgroup">
+          <span class="flabel">Roll Number</span>
+          <input type="number" id="tpRoll" placeholder="Enter roll no" oninput="runThresholdPlanner()"/>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">My Target %</span>
+          <input type="number" id="tpTarget" value="75" min="1" max="100" oninput="runThresholdPlanner()"/>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Student Name</span>
+          <input type="text" id="tpNameDisplay" readonly placeholder="Auto-filled"/>
+        </div>
+        <div class="fgroup" style="justify-content:flex-end;padding-top:18px">
+          <button class="btn primary" onclick="runThresholdPlanner()">Calculate</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tpResult" style="display:none">
+      <div class="threshold-result" id="tpCards"></div>
+      <div class="panel" style="margin-top:16px" id="tpAdvice"></div>
+    </div>
+  </div>
+
+  <!-- ===== FACULTY VIEW TAB ===== -->
+  <div class="section" id="section-faculty">
+    <div class="faculty-header">
+      <div class="faculty-icon">🎓</div>
+      <div>
+        <div style="font-size:16px;font-weight:800">Faculty Dashboard</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">View and sort students below attendance threshold. Hybrid Sort (Merge + Insertion) used for sorting.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Faculty Threshold Settings</div>
+        <div class="panel-actions">
+          <button class="btn" onclick="setFacThresholdPreset(65)">65%</button>
+          <button class="btn" onclick="setFacThresholdPreset(70)">70%</button>
+          <button class="btn" onclick="setFacThresholdPreset(75)">75%</button>
+          <button class="btn" onclick="setFacThresholdPreset(80)">80%</button>
+          <button class="btn" onclick="setFacThresholdPreset(85)">85%</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+        <div class="fgroup">
+          <span class="flabel">Faculty Limit %</span>
+          <input type="number" id="facLimit" value="75" min="1" max="100" oninput="runFacultyView()"/>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Department</span>
+          <select id="facDept" onchange="runFacultyView()">
+            <option value="">All Depts</option>
+            <option value="AI">AI</option>
+            <option value="CSE">CSE</option>
+            <option value="MECH">Mechanical</option>
+            <option value="CIVIL">Civil</option>
+            <option value="ECE">Electronics</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Year</span>
+          <select id="facYear" onchange="runFacultyView()">
+            <option value="">All Years</option>
+            <option value="1">1st Year</option>
+            <option value="2">2nd Year</option>
+            <option value="3">3rd Year</option>
+            <option value="4">4th Year</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Batch</span>
+          <select id="facBatch" onchange="runFacultyView()">
+            <option value="">All Batches</option>
+            <option value="A">Batch A</option>
+            <option value="B">Batch B</option>
+            <option value="C">Batch C</option>
+            <option value="D">Batch D</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Sort By</span>
+          <select id="facSort" onchange="runFacultyView()">
+            <option value="pct_asc">% Low → High</option>
+            <option value="pct_desc">% High → Low</option>
+            <option value="roll_asc">Roll No ↑</option>
+            <option value="name_asc">Name A-Z</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="facBelowBanner" class="below-banner" style="display:none">
+      <span style="font-size:18px">⚠️</span>
+      <div>
+        <div style="font-weight:700;color:var(--red)" id="facBannerText"></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">Sorted using Hybrid Sort (Merge Sort + Insertion Sort)</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-header">
+        <span class="table-title">Students Below Faculty Limit</span>
+        <span id="facCountLabel" style="font-size:12px;color:var(--text3)"></span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Roll No</th><th>Name</th><th>Dept</th><th>Year</th><th>Batch</th>
+            <th>Present</th><th>Absent</th><th>Attendance %</th><th>Deficit</th>
+          </tr>
+        </thead>
+        <tbody id="facTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== HISTORY / UNDO TAB ===== -->
+  <div class="section" id="section-history">
+    <div class="section-title">Undo &amp; History</div>
+    <div class="section-sub">Give attendance to any student, undo any record, or remove attendance for any date. All actions tracked in Deque.</div>
+
+    <!-- GIVE ATTENDANCE PANEL -->
+    <div class="panel" style="border-left:3px solid var(--green)">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title" style="color:var(--green)">✏ Give Attendance</div>
+          <div class="panel-note">Manually mark a student Present or Absent for any date.</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:end">
+        <div class="fgroup">
+          <span class="flabel">Roll Number</span>
+          <input type="number" id="giveRoll" placeholder="Enter roll no" oninput="loadGiveStudentInfo()"/>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Student Name</span>
+          <input type="text" id="giveNameDisplay" readonly placeholder="Auto-filled"/>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Date</span>
+          <input type="date" id="giveDate"/>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Status</span>
+          <select id="giveStatus">
+            <option value="P">Present</option>
+            <option value="A">Absent</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <button class="btn primary" onclick="giveAttendance()" style="width:100%">✔ Give Attendance</button>
+        </div>
+      </div>
+      <div id="giveStudentCard" style="display:none;margin-top:14px;padding:12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border)">
+        <div style="display:flex;gap:24px;flex-wrap:wrap;font-size:13px">
+          <div><span style="color:var(--text3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em">Dept</span><br><span id="giveInfoDept" style="font-weight:700"></span></div>
+          <div><span style="color:var(--text3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em">Year</span><br><span id="giveInfoYear" style="font-weight:700"></span></div>
+          <div><span style="color:var(--text3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em">Batch</span><br><span id="giveInfoBatch" style="font-weight:700"></span></div>
+          <div><span style="color:var(--text3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em">Present</span><br><span id="giveInfoPresent" style="font-weight:700;color:var(--green)"></span></div>
+          <div><span style="color:var(--text3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em">Absent</span><br><span id="giveInfoAbsent" style="font-weight:700;color:var(--red)"></span></div>
+          <div><span style="color:var(--text3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em">Current %</span><br><span id="giveInfoPct" style="font-weight:700"></span></div>
+        </div>
+        <div style="margin-top:10px">
+          <span style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em">Recent Records</span>
+          <div id="giveRecentRecords" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNDO / REMOVE PANEL -->
+    <div class="panel" style="border-left:3px solid var(--amber)">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title" style="color:var(--amber)">↩ Undo / Remove Attendance</div>
+          <div class="panel-note">Remove a marked attendance for any student on a specific date, or undo the last action.</div>
+        </div>
+        <div class="panel-actions">
+          <button class="btn amber" onclick="undoLast()">↩ Undo Last Action</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:end">
+        <div class="fgroup">
+          <span class="flabel">Roll Number</span>
+          <input type="number" id="undoRoll" placeholder="Enter roll no" oninput="loadUndoDates()"/>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Date to Remove</span>
+          <select id="undoDate">
+            <option value="">-- Select Date --</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <span class="flabel">Student Name</span>
+          <input type="text" id="undoNameDisplay" readonly placeholder="Auto-filled"/>
+        </div>
+        <div class="fgroup">
+          <button class="btn danger" onclick="undoSpecific()" style="width:100%">🗑 Remove Attendance</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-header">
+        <span class="table-title">Action History <span class="mono" style="color:var(--text3)">(Deque)</span></span>
+        <span id="historyCountLabel" style="font-size:12px;color:var(--text3)"></span>
+      </div>
+      <div class="history-list" id="historyList" style="padding:12px"></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// =====================================================
+// DATA STRUCTURES
+// =====================================================
+
+// Double-Ended Queue (Deque) using Array
+class Deque {
+  constructor() { this._arr = []; }
+  pushFront(val) { this._arr.unshift(val); }
+  pushRear(val) { this._arr.push(val); }
+  popFront() { return this._arr.shift(); }
+  popRear() { return this._arr.pop(); }
+  peekFront() { return this._arr[0]; }
+  peekRear() { return this._arr[this._arr.length-1]; }
+  size() { return this._arr.length; }
+  isEmpty() { return this._arr.length === 0; }
+  toArray() { return [...this._arr]; }
+}
+
+// Queue (FIFO) using Array
+class Queue {
+  constructor() { this._arr = []; }
+  enqueue(val) { this._arr.push(val); }
+  dequeue() { return this._arr.shift(); }
+  peek() { return this._arr[0]; }
+  size() { return this._arr.length; }
+  isEmpty() { return this._arr.length === 0; }
+  toArray() { return [...this._arr]; }
+}
+
+// =====================================================
+// STATE (Main Array)
+// =====================================================
+let students = []; // Main array of student objects
+const attendanceDeque = new Deque(); // Attendance operations deque
+const pendingQueue = new Queue();    // Pending attendance queue
+const actionHistoryDeque = new Deque(); // Undo history
+
+let currentRole = 'student';
+
+// =====================================================
+// DEMO DATA SEED  —  60 students per dept × year × batch
+// 5 depts × 4 years × 4 batches × 60 = 4800 students
+// =====================================================
+function seedDemoData() {
+  const firstNames = [
+    'Aarav','Aditya','Akash','Akshay','Akhil','Amandeep','Amith','Anand','Anish','Ankit',
+    'Anshul','Arjun','Arun','Ashwin','Balaji','Bharath','Bhuvan','Charan','Chirag','Darshan',
+    'Deepak','Dhruv','Dinesh','Elan','Ganesh','Gautam','Gokul','Gopal','Harish','Hari',
+    'Ilavarasan','Jai','Jayesh','Kaarthik','Karan','Karthik','Keerthan','Kishan','Krishna','Kumar',
+    'Lokesh','Madhan','Maheswaran','Mani','Manoj','Mitesh','Mohan','Muthukumar','Nanda','Naresh',
+    'Naveen','Nikhil','Nitin','Nithish','Pavan','Prasanth','Prashanth','Praveen','Priyadarshan','Rahul',
+    'Rajesh','Rakesh','Ram','Ramesh','Ravi','Rohit','Roshan','Sachin','Sai','Santhosh',
+    'Saravanan','Sathish','Selvam','Senthil','Shivam','Shyam','Siva','Sudhir','Suresh','Surya',
+    'Tarun','Tej','Thilak','Uday','Varun','Venkatesh','Vignesh','Vijay','Vikram','Vishnu',
+    'Yuvan','Aakash','Abhinav','Abhiram','Adhithya','Ajith','Ajay','Amarnath','Anbalagan','Anbuchezhian',
+    // Female names
+    'Aadhya','Aarti','Abhinaya','Aishwarya','Akshara','Amala','Amirtha','Amudha','Ananya','Anitha',
+    'Anjali','Annamalai','Archana','Arthi','Bavitha','Bharathi','Brindha','Chandana','Deepa','Deepika',
+    'Devi','Dharshini','Divya','Durgadevi','Eswari','Gayathri','Geetha','Gowri','Harini','Indhu',
+    'Iswarya','Janani','Jaya','Jayalakshmi','Jenifer','Jothika','Kalaivani','Kamala','Kavitha','Keerthana',
+    'Kiruthika','Kousalya','Krithika','Lakshmi','Lavanya','Logapriya','Madhavi','Malathi','Manigandan','Manjula',
+    'Meena','Meenakshi','Meera','Monisha','Mythili','Nandini','Nandhitha','Narmadha','Nithya','Nivetha',
+    'Oviya','Padmavathi','Pavithra','Pooja','Poorvika','Priya','Priyanka','Ramya','Ranjitha','Rekha',
+    'Revathi','Roshini','Rubini','Sangeetha','Saraswathi','Saranya','Sathya','Shalini','Shanthi','Sheeba',
+    'Sneka','Soundarya','Sowmiya','Sridevi','Srividhya','Subashini','Suganya','Sumathi','Sundari','Swetha',
+    'Thenmozhi','Usha','Vanitha','Varsha','Vasantha','Vimala','Vinitha','Yamuna','Yuvarani','Zara'
+  ];
+  const lastNames = [
+    'Kumar','Sharma','Nair','Menon','Raja','Iyer','Krishnan','Pillai','Suresh','Devi',
+    'Ali','Patel','Babu','Reddy','Singh','Selvam','Das','Raj','Lakshmi','Mahesh',
+    'Gupta','Varma','Kannan','Mohan','Subramanian','Verma','Rao','Pandian','Murugan','Rajan',
+    'Natarajan','Shankar','Balasubramanian','Venkataraman','Sundaram','Annamalai','Govindasamy','Palanisamy','Ramasamy','Duraisamy',
+    'Arumugam','Chinnaswamy','Marimuthu','Thangavel','Karuppiah','Periasamy','Muthusamy','Raghunathan','Srinivasan','Subramaniam',
+    'Jayaraman','Sivasubramanian','Krishnamurthy','Balamurugan','Murugesan','Palaniappan','Soundararajan','Venkatesan','Rajagopal','Thiruvengadam'
+  ];
+
+  const depts = ['AI','CSE','MECH','CIVIL','ECE'];
+  const years = ['1','2','3','4'];
+  const batches = ['A','B','C','D'];
+  const today = new Date();
+
+  // Roll number prefix by dept
+  const deptRollPrefix = {AI:1, CSE:2, MECH:3, CIVIL:4, ECE:5};
+
+  let globalIdx = 0;
+
+  depts.forEach(dept => {
+    years.forEach(year => {
+      batches.forEach(batch => {
+        for (let s = 0; s < 60; s++) {
+          // Generate unique name
+          const fn = firstNames[(globalIdx * 7 + s * 3) % firstNames.length];
+          const ln = lastNames[(globalIdx + s * 11) % lastNames.length];
+          const name = `${fn} ${ln}`;
+
+          // Roll: dept prefix + year + batch index + student number
+          // e.g. AI Y1 BatchA student 1 => 1 1 0 01 => 11001
+          const batchIdx = batches.indexOf(batch);
+          const rollNo = deptRollPrefix[dept]*10000 + parseInt(year)*1000 + batchIdx*100 + (s+1);
+
+          // Generate attendance records for ~60 days
+          const records = [];
+          const totalDays = 55 + Math.floor(Math.random()*15); // 55–70 classes
+          // Vary attendance patterns
+          const attendanceRate = 0.55 + Math.random()*0.40; // 55%–95% range
+          for (let d = 0; d < totalDays; d++) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - (totalDays - d));
+            // Skip weekends
+            const dow = date.getDay();
+            if (dow === 0 || dow === 6) continue;
+            const status = Math.random() < attendanceRate ? 'P' : 'A';
+            records.push({ date: date.toISOString().slice(0,10), status });
+          }
+          const present = records.filter(r=>r.status==='P').length;
+          const absent  = records.filter(r=>r.status==='A').length;
+
+          students.push({
+            id: globalIdx * 1000 + s,
+            rollNo,
+            name,
+            dept,
+            year,
+            batch,
+            present,
+            absent,
+            records
+          });
+        }
+        globalIdx++;
+      });
+    });
+  });
+}
+
+// =====================================================
+// SORT ALGORITHMS
+// =====================================================
+function insertionSort(arr, cmp) {
+  const r = [...arr];
+  for (let i = 1; i < r.length; i++) {
+    const cur = r[i]; let j = i - 1;
+    while (j >= 0 && cmp(r[j], cur) > 0) { r[j+1] = r[j]; j--; }
+    r[j+1] = cur;
+  }
+  return r;
+}
+function mergeSort(arr, cmp) {
+  if (arr.length <= 1) return arr;
+  const mid = Math.floor(arr.length / 2);
+  const left = mergeSort(arr.slice(0, mid), cmp);
+  const right = mergeSort(arr.slice(mid), cmp);
+  return mergeSortedArrays(left, right, cmp);
+}
+function mergeSortedArrays(left, right, cmp) {
+  const res = []; let i = 0, j = 0;
+  while (i < left.length && j < right.length) {
+    if (cmp(left[i], right[j]) <= 0) res.push(left[i++]);
+    else res.push(right[j++]);
+  }
+  return res.concat(left.slice(i)).concat(right.slice(j));
+}
+// Hybrid Sort: Insertion for small, Merge for large
+function hybridSort(arr, cmp) {
+  if (arr.length <= 16) return insertionSort(arr, cmp);
+  const mid = Math.floor(arr.length / 2);
+  return mergeSortedArrays(
+    hybridSort(arr.slice(0, mid), cmp),
+    hybridSort(arr.slice(mid), cmp),
+    cmp
+  );
+}
+
+// =====================================================
+// HELPERS
+// =====================================================
+function getAttPct(student) {
+  const total = student.present + student.absent;
+  if (total === 0) return 0;
+  return Math.round((student.present / total) * 100);
+}
+function pctColor(pct) {
+  if (pct >= 85) return 'var(--green)';
+  if (pct >= 75) return 'var(--amber)';
+  return 'var(--red)';
+}
+function pctBadgeClass(pct) {
+  if (pct >= 85) return 'badge-green';
+  if (pct >= 75) return 'badge-amber';
+  return 'badge-red';
+}
+function deptBadge(dept) {
+  const map = {AI:'badge-purple',CSE:'badge-blue',MECH:'badge-cyan',CIVIL:'badge-amber',ECE:'badge-green'};
+  return map[dept] || 'badge-blue';
+}
+function yearLabel(y) {
+  return {1:'1st',2:'2nd',3:'3rd',4:'4th'}[y]||y;
+}
+function findStudent(rollNo) {
+  return students.find(s => String(s.rollNo) === String(rollNo));
+}
+function todayStr() {
+  return new Date().toISOString().slice(0,10);
+}
+
+// =====================================================
+// TOAST
+// =====================================================
+function showToast(msg, type='info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(()=>t.remove(),300); }, 2800);
+}
+
+// =====================================================
+// TAB & ROLE
+// =====================================================
+function switchTab(tab) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('section-'+tab).classList.add('active');
+  const tabs = ['students','mark','threshold','faculty','history'];
+  const idx = tabs.indexOf(tab);
+  document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+  if (tab==='faculty') runFacultyView();
+  if (tab==='threshold') runThresholdPlanner();
+  if (tab==='history') renderHistory();
+}
+function setRole(role) {
+  currentRole = role;
+  document.getElementById('roleStudent').classList.toggle('active', role==='student');
+  document.getElementById('roleFaculty').classList.toggle('active', role==='faculty');
+}
+
+// =====================================================
+// ADD STUDENT
+// =====================================================
+function addStudent() {
+  const name = document.getElementById('addName').value.trim();
+  const roll = document.getElementById('addRoll').value.trim();
+  const dept = document.getElementById('addDept').value;
+  const year = document.getElementById('addYear').value;
+  const batch = document.getElementById('addBatch').value;
+  if (!name) { showToast('Enter student name','error'); return; }
+  if (!roll) { showToast('Enter roll number','error'); return; }
+  if (findStudent(roll)) { showToast('Roll number already exists!','error'); return; }
+  const s = { id: Date.now(), rollNo: parseInt(roll), name, dept, year, batch, present:0, absent:0, records:[] };
+  students.push(s);
+  // Record to action history deque (pushRear)
+  actionHistoryDeque.pushRear({ type:'add-student', rollNo:s.rollNo, studentId:s.id });
+  document.getElementById('addName').value='';
+  document.getElementById('addRoll').value='';
+  showToast(`Added ${name} (Roll ${roll})`,'success');
+  renderAll();
+}
+
+// =====================================================
+// MARK ATTENDANCE (BULK)
+// =====================================================
+function populateMarkStudents() {
+  const dept = document.getElementById('markDept').value;
+  const year = document.getElementById('markYear').value;
+  const batch = document.getElementById('markBatch').value;
+  if (!dept || !year || !batch) {
+    document.getElementById('bulkMarkArea').innerHTML='<div class="empty" style="padding:16px">Select Dept, Year, and Batch to load students.</div>';
+    return;
+  }
+  const filtered = students.filter(s=>s.dept===dept && s.year===year && s.batch===batch);
+  if (!filtered.length) {
+    document.getElementById('bulkMarkArea').innerHTML='<div class="empty" style="padding:16px">No students in this Dept/Year/Batch.</div>';
+    return;
+  }
+  // Enqueue students to pending queue for display
+  while (!pendingQueue.isEmpty()) pendingQueue.dequeue();
+  filtered.forEach(s=>pendingQueue.enqueue(s.rollNo));
+  updateDSInfo();
+  const rows = filtered.map(s=>`
+    <tr>
+      <td>${s.rollNo}</td>
+      <td>${s.name}</td>
+      <td><span class="badge ${deptBadge(s.dept)}">${s.dept}</span></td>
+      <td>${getAttPct(s)}%</td>
+      <td>
+        <select id="mstatus_${s.rollNo}" style="width:120px">
+          <option value="P">Present</option>
+          <option value="A">Absent</option>
+        </select>
+      </td>
+    </tr>`).join('');
+  document.getElementById('bulkMarkArea').innerHTML=`
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th style="padding:8px 12px;font-size:10px;color:var(--text3);text-align:left;background:var(--surface2);border-bottom:1px solid var(--border)">Roll</th>
+        <th style="padding:8px 12px;font-size:10px;color:var(--text3);text-align:left;background:var(--surface2);border-bottom:1px solid var(--border)">Name</th>
+        <th style="padding:8px 12px;font-size:10px;color:var(--text3);text-align:left;background:var(--surface2);border-bottom:1px solid var(--border)">Dept</th>
+        <th style="padding:8px 12px;font-size:10px;color:var(--text3);text-align:left;background:var(--surface2);border-bottom:1px solid var(--border)">Current %</th>
+        <th style="padding:8px 12px;font-size:10px;color:var(--text3);text-align:left;background:var(--surface2);border-bottom:1px solid var(--border)">Status</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function markBulkPresent() {
+  document.querySelectorAll('[id^="mstatus_"]').forEach(sel=>sel.value='P');
+}
+function markBulkAbsent() {
+  document.querySelectorAll('[id^="mstatus_"]').forEach(sel=>sel.value='A');
+}
+
+// =====================================================
+// EXCEPTION MARK (absent list → everyone else Present)
+// =====================================================
+function parseAbsentRolls() {
+  const raw = document.getElementById('absentRollInput').value;
+  return raw.split(',')
+    .map(r => r.trim())
+    .filter(r => r.length > 0)
+    .map(r => parseInt(r))
+    .filter(r => !isNaN(r));
+}
+
+function previewExceptions() {
+  const absentRolls = parseAbsentRolls();
+  const preview = document.getElementById('exceptionPreview');
+  const tagsDiv = document.getElementById('absentTags');
+  const countLabel = document.getElementById('presentCountLabel');
+  const dept = document.getElementById('markDept').value;
+  const year = document.getElementById('markYear').value;
+  const batch = document.getElementById('markBatch').value;
+  const loaded = students.filter(s => s.dept===dept && s.year===year && s.batch===batch);
+  if (absentRolls.length === 0) { preview.style.display = 'none'; return; }
+  preview.style.display = 'block';
+  tagsDiv.innerHTML = absentRolls.map(r => {
+    const found = loaded.find(s => s.rollNo === r);
+    const color = found ? 'var(--red)' : 'var(--text3)';
+    const bg = found ? 'var(--red-bg)' : 'var(--surface2)';
+    const label = found ? r + ' (' + found.name.split(' ')[0] + ')' : r + ' ✗';
+    return '<span style="padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:' + bg + ';color:' + color + ';font-family:JetBrains Mono,monospace">' + label + '</span>';
+  }).join('');
+  const validAbsent = absentRolls.filter(r => loaded.find(s => s.rollNo === r));
+  const presentCount = loaded.length - validAbsent.length;
+  if (countLabel) countLabel.textContent = loaded.length ? '→ ' + presentCount + ' student' + (presentCount!==1?'s':'') + ' will be marked Present' : '(Load a batch first)';
+}
+
+function applyExceptionMark() {
+  const dept = document.getElementById('markDept').value;
+  const year = document.getElementById('markYear').value;
+  const batch = document.getElementById('markBatch').value;
+  if (!dept || !year || !batch) { showToast('Select Dept, Year and Batch first','error'); return; }
+  const loaded = students.filter(s => s.dept===dept && s.year===year && s.batch===batch);
+  if (!loaded.length) { showToast('No students loaded for this batch','error'); return; }
+  const date = document.getElementById('markDate').value;
+  if (!date) { showToast('Select a date first','error'); return; }
+  const absentRolls = parseAbsentRolls();
+  const absentSet = new Set(absentRolls);
+  populateMarkStudents();
+  // Small delay so DOM is ready after populateMarkStudents
+  setTimeout(() => {
+    loaded.forEach(s => {
+      const sel = document.getElementById('mstatus_' + s.rollNo);
+      if (sel) sel.value = absentSet.has(s.rollNo) ? 'A' : 'P';
+    });
+    const absentCount = loaded.filter(s => absentSet.has(s.rollNo)).length;
+    const presentCount = loaded.length - absentCount;
+    showToast(presentCount + ' Present, ' + absentCount + ' Absent set — click Submit to save', 'info');
+    previewExceptions();
+  }, 50);
+}
+
+function clearExceptionInput() {
+  document.getElementById('absentRollInput').value = '';
+  document.getElementById('exceptionPreview').style.display = 'none';
+  document.querySelectorAll('[id^="mstatus_"]').forEach(sel => sel.value = 'P');
+}
+
+function submitMarkAttendance() {
+  const date = document.getElementById('markDate').value;
+  if (!date) { showToast('Select a date first','error'); return; }
+  const selects = document.querySelectorAll('[id^="mstatus_"]');
+  if (!selects.length) { showToast('Load students first','error'); return; }
+  let count = 0;
+  selects.forEach(sel=>{
+    const rollNo = parseInt(sel.id.replace('mstatus_',''));
+    const status = sel.value;
+    const s = findStudent(rollNo);
+    if (!s) return;
+    const existing = s.records.find(r=>r.date===date);
+    const oldStatus = existing ? existing.status : null;
+    if (existing) {
+      if (oldStatus!==status) {
+        if (oldStatus==='P') s.present--; else s.absent--;
+        existing.status = status;
+        if (status==='P') s.present++; else s.absent++;
+      }
+    } else {
+      s.records.push({date, status});
+      if (status==='P') s.present++; else s.absent++;
+    }
+    // Push to attendance deque (rear)
+    attendanceDeque.pushRear({rollNo, date, status, oldStatus, ts: Date.now()});
+    // Push to action history
+    actionHistoryDeque.pushRear({type:'mark', rollNo, date, newStatus:status, oldStatus});
+    count++;
+  });
+  updateDSInfo();
+  showToast(`Marked attendance for ${count} students on ${date}`,'success');
+  renderAll();
+}
+
+function updateDSInfo() {
+  const ds = document.getElementById('dequeSize');
+  const qs = document.getElementById('queueSize');
+  if (ds) ds.textContent = attendanceDeque.size();
+  if (qs) qs.textContent = pendingQueue.size();
+}
+
+// =====================================================
+// THRESHOLD PLANNER (Student)
+// =====================================================
+function setThresholdPreset(pct) {
+  document.getElementById('tpTarget').value = pct;
+  runThresholdPlanner();
+}
+function runThresholdPlanner() {
+  const roll = document.getElementById('tpRoll').value.trim();
+  const target = parseInt(document.getElementById('tpTarget').value)||75;
+  const s = findStudent(roll);
+  const nameBox = document.getElementById('tpNameDisplay');
+  const resDiv = document.getElementById('tpResult');
+  if (!s) {
+    nameBox.value = '';
+    resDiv.style.display='none';
+    return;
+  }
+  nameBox.value = s.name;
+  const total = s.present + s.absent;
+  const pct = getAttPct(s);
+  // How many classes needed to reach target?
+  let classesNeeded = 0;
+  if (pct < target) {
+    // present + x >= target/100 * (total + x)
+    // x >= (target*total - 100*present) / (100 - target)
+    const num = (target * total) - (100 * s.present);
+    const den = 100 - target;
+    classesNeeded = den > 0 ? Math.max(0, Math.ceil(num / den)) : Infinity;
+  }
+  // How many can miss and still be >= target?
+  let canMiss = 0;
+  if (pct >= target) {
+    // present / (total + canMiss) >= target/100
+    // => canMiss <= present*100/target - total
+    canMiss = Math.floor((s.present * 100 / target) - total);
+    canMiss = Math.max(0, canMiss);
+  }
+  resDiv.style.display = 'block';
+  const color = pct >= target ? 'var(--green)' : 'var(--red)';
+  document.getElementById('tpCards').innerHTML = `
+    <div class="tcard"><div class="tcard-label">Current %</div><div class="tcard-value" style="color:${color}">${pct}%</div></div>
+    <div class="tcard"><div class="tcard-label">Target %</div><div class="tcard-value" style="color:var(--blue)">${target}%</div></div>
+    <div class="tcard"><div class="tcard-label">Total Classes</div><div class="tcard-value">${total}</div></div>
+    <div class="tcard"><div class="tcard-label">Present / Absent</div><div class="tcard-value" style="font-size:16px"><span style="color:var(--green)">${s.present}</span> / <span style="color:var(--red)">${s.absent}</span></div></div>
+    <div class="tcard"><div class="tcard-label">Classes to Attend</div><div class="tcard-value" style="color:var(--amber)">${pct>=target?'—':classesNeeded===Infinity?'∞':classesNeeded}</div></div>
+    <div class="tcard"><div class="tcard-label">Classes Can Skip</div><div class="tcard-value" style="color:var(--green)">${pct>=target?canMiss:'0'}</div></div>
+    <div class="tcard"><div class="tcard-label">Status</div><div class="tcard-value" style="font-size:14px;color:${color}">${pct>=target?'✓ Safe':'⚠ At Risk'}</div></div>
+    <div class="tcard"><div class="tcard-label">Gap</div><div class="tcard-value" style="font-size:16px;color:${color}">${pct>=target?'+':''}${pct-target}%</div></div>
+  `;
+  let advice = '';
+  if (pct >= target) {
+    advice = `<div style="color:var(--green);font-weight:700;font-size:15px;margin-bottom:8px">✓ You are above your ${target}% target!</div>
+    <div style="color:var(--text2);font-size:13px">You can afford to miss up to <strong style="color:var(--amber)">${canMiss}</strong> more class${canMiss!==1?'es':''} and still stay above ${target}%. Keep it up!</div>`;
+  } else {
+    advice = `<div style="color:var(--red);font-weight:700;font-size:15px;margin-bottom:8px">⚠ You are below your ${target}% target!</div>
+    <div style="color:var(--text2);font-size:13px">You need to attend the next <strong style="color:var(--amber)">${classesNeeded===Infinity?'many':classesNeeded}</strong> consecutive class${classesNeeded!==1?'es':''} without missing any to reach ${target}%. Current: ${pct}%.</div>`;
+  }
+  document.getElementById('tpAdvice').innerHTML = advice;
+}
+
+// =====================================================
+// FACULTY VIEW
+// =====================================================
+function setFacThresholdPreset(pct) {
+  document.getElementById('facLimit').value = pct;
+  runFacultyView();
+}
+function runFacultyView() {
+  const limit = parseInt(document.getElementById('facLimit').value)||75;
+  const dept = document.getElementById('facDept').value;
+  const year = document.getElementById('facYear').value;
+  const batch = document.getElementById('facBatch').value;
+  const sortBy = document.getElementById('facSort').value;
+
+  let filtered = students.filter(s=>{
+    if (dept && s.dept!==dept) return false;
+    if (year && s.year!==year) return false;
+    if (batch && s.batch!==batch) return false;
+    return getAttPct(s) < limit;
+  });
+
+  // Hybrid Sort
+  const cmpMap = {
+    pct_asc: (a,b)=>getAttPct(a)-getAttPct(b),
+    pct_desc: (a,b)=>getAttPct(b)-getAttPct(a),
+    roll_asc: (a,b)=>a.rollNo-b.rollNo,
+    name_asc: (a,b)=>a.name.localeCompare(b.name)
+  };
+  filtered = hybridSort(filtered, cmpMap[sortBy]||cmpMap.pct_asc);
+
+  const banner = document.getElementById('facBelowBanner');
+  if (filtered.length > 0) {
+    banner.style.display='flex';
+    document.getElementById('facBannerText').textContent=
+      `${filtered.length} student${filtered.length!==1?'s':''} below ${limit}% attendance limit`;
+  } else {
+    banner.style.display='none';
+  }
+  document.getElementById('facCountLabel').textContent=`${filtered.length} students`;
+  const body = document.getElementById('facTableBody');
+  if (!filtered.length) {
+    body.innerHTML=`<tr><td colspan="10" class="empty">No students below ${limit}% for selected filters.</td></tr>`;
+    return;
+  }
+  body.innerHTML = filtered.map((s,i)=>{
+    const pct = getAttPct(s);
+    const deficit = limit - pct;
+    return `<tr>
+      <td style="color:var(--text3)">${i+1}</td>
+      <td class="mono">${s.rollNo}</td>
+      <td>${s.name}</td>
+      <td><span class="badge ${deptBadge(s.dept)}">${s.dept}</span></td>
+      <td><span class="badge badge-blue">${yearLabel(s.year)} Yr</span></td>
+      <td><span class="badge badge-cyan">Batch ${s.batch}</span></td>
+      <td style="color:var(--green)">${s.present}</td>
+      <td style="color:var(--red)">${s.absent}</td>
+      <td>
+        <div class="pct-cell">
+          <span style="font-weight:700;color:${pctColor(pct)}">${pct}%</span>
+          <div class="pbar-wrap"><div class="pbar-fill" style="width:${pct}%;background:${pctColor(pct)}"></div></div>
+        </div>
+      </td>
+      <td><span class="badge badge-red">−${deficit}%</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// =====================================================
+// UNDO
+// =====================================================
+// =====================================================
+// GIVE ATTENDANCE (manual add/update for any roll + date)
+// =====================================================
+function loadGiveStudentInfo() {
+  const roll = document.getElementById('giveRoll').value.trim();
+  const nameBox = document.getElementById('giveNameDisplay');
+  const card = document.getElementById('giveStudentCard');
+  const s = findStudent(roll);
+  if (!s) {
+    nameBox.value = '';
+    card.style.display = 'none';
+    return;
+  }
+  nameBox.value = s.name;
+  const pct = getAttPct(s);
+  document.getElementById('giveInfoDept').textContent = s.dept;
+  document.getElementById('giveInfoYear').textContent = s.year + (s.year==='1'?'st':s.year==='2'?'nd':s.year==='3'?'rd':'th') + ' Year';
+  document.getElementById('giveInfoBatch').textContent = 'Batch ' + s.batch;
+  document.getElementById('giveInfoPresent').textContent = s.present;
+  document.getElementById('giveInfoAbsent').textContent = s.absent;
+  document.getElementById('giveInfoPct').textContent = pct + '%';
+  document.getElementById('giveInfoPct').style.color = pct >= 85 ? 'var(--green)' : pct >= 75 ? 'var(--amber)' : 'var(--red)';
+  // Show last 14 records as pills
+  const recent = [...s.records].sort((a,b) => b.date.localeCompare(a.date)).slice(0,14);
+  document.getElementById('giveRecentRecords').innerHTML = recent.length
+    ? recent.map(r => {
+        const isP = r.status === 'P';
+        return '<span style="padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;background:' +
+          (isP ? 'var(--green-bg)' : 'var(--red-bg)') +
+          ';color:' + (isP ? 'var(--green)' : 'var(--red)') +
+          ';font-family:JetBrains Mono,monospace">' + r.date + ' ' + (isP ? 'P' : 'A') + '</span>';
+      }).join('')
+    : '<span style="font-size:12px;color:var(--text3)">No records yet</span>';
+  card.style.display = 'block';
+}
+
+function giveAttendance() {
+  const roll = document.getElementById('giveRoll').value.trim();
+  const date = document.getElementById('giveDate').value;
+  const status = document.getElementById('giveStatus').value;
+  if (!roll) { showToast('Enter a roll number','error'); return; }
+  if (!date) { showToast('Select a date','error'); return; }
+  const s = findStudent(roll);
+  if (!s) { showToast('Student not found for roll ' + roll, 'error'); return; }
+  const existing = s.records.find(r => r.date === date);
+  const oldStatus = existing ? existing.status : null;
+  if (existing) {
+    if (existing.status === status) {
+      showToast(s.name + ' already marked ' + (status==='P'?'Present':'Absent') + ' on ' + date, 'info');
+      return;
+    }
+    // Update existing
+    if (existing.status === 'P') s.present--; else s.absent--;
+    existing.status = status;
+    if (status === 'P') s.present++; else s.absent++;
+    showToast('Updated: ' + s.name + ' → ' + (status==='P'?'Present':'Absent') + ' on ' + date, 'success');
+  } else {
+    s.records.push({ date, status });
+    if (status === 'P') s.present++; else s.absent++;
+    showToast('Marked: ' + s.name + ' → ' + (status==='P'?'Present':'Absent') + ' on ' + date, 'success');
+  }
+  attendanceDeque.pushRear({ rollNo: s.rollNo, date, status, oldStatus, ts: Date.now() });
+  actionHistoryDeque.pushRear({ type:'mark', rollNo: s.rollNo, date, newStatus: status, oldStatus });
+  // Refresh the card
+  loadGiveStudentInfo();
+  renderAll();
+}
+
+function undoLast() {
+  if (actionHistoryDeque.isEmpty()) { showToast('Nothing to undo','error'); return; }
+  const action = actionHistoryDeque.popRear(); // Pop from rear (last action)
+  applyUndo(action);
+}
+function undoSpecific() {
+  const roll = document.getElementById('undoRoll').value.trim();
+  const date = document.getElementById('undoDate').value;
+  if (!roll || !date) { showToast('Select student roll and date','error'); return; }
+  const s = findStudent(roll);
+  if (!s) { showToast('Student not found','error'); return; }
+  const idx = s.records.findIndex(r=>r.date===date);
+  if (idx===-1) { showToast('No attendance record for that date','error'); return; }
+  const removed = s.records.splice(idx, 1)[0];
+  if (removed.status==='P') s.present--; else s.absent--;
+  showToast(`Removed ${removed.status==='P'?'Present':'Absent'} for Roll ${roll} on ${date}`,'success');
+  loadUndoDates();
+  renderAll();
+}
+function loadUndoDates() {
+  const roll = document.getElementById('undoRoll').value.trim();
+  const nameBox = document.getElementById('undoNameDisplay');
+  const dateSelect = document.getElementById('undoDate');
+  const s = findStudent(roll);
+  if (!s) { nameBox.value=''; dateSelect.innerHTML='<option value="">-- Select Date --</option>'; return; }
+  nameBox.value = s.name;
+  const dates = [...s.records].sort((a,b)=>b.date.localeCompare(a.date));
+  dateSelect.innerHTML='<option value="">-- Select Date --</option>'+
+    dates.map(r=>`<option value="${r.date}">${r.date} (${r.status==='P'?'Present':'Absent'})</option>`).join('');
+}
+function applyUndo(action) {
+  if (!action) return;
+  if (action.type==='add-student') {
+    students = students.filter(s=>s.id!==action.studentId);
+    showToast(`Undo: Removed student Roll ${action.rollNo}`,'info');
+  } else if (action.type==='mark') {
+    const s = findStudent(action.rollNo);
+    if (s) {
+      const rec = s.records.find(r=>r.date===action.date);
+      if (rec) {
+        if (action.newStatus==='P') s.present--; else s.absent--;
+        if (action.oldStatus) {
+          if (action.oldStatus==='P') s.present++; else s.absent++;
+          rec.status = action.oldStatus;
+        } else {
+          s.records = s.records.filter(r=>r.date!==action.date);
+        }
+      }
+    }
+    showToast(`Undo: Reverted attendance for Roll ${action.rollNo} on ${action.date}`,'info');
+  }
+  renderAll();
+}
+
+// =====================================================
+// RENDER FUNCTIONS
+// =====================================================
+function renderStudentTable() {
+  const search = document.getElementById('searchStudents').value.trim().toLowerCase();
+  const dept = document.getElementById('filterDept').value;
+  const year = document.getElementById('filterYear').value;
+  const batch = document.getElementById('filterBatch').value;
+
+  let list = students.filter(s=>{
+    if (dept && s.dept!==dept) return false;
+    if (year && s.year!==year) return false;
+    if (batch && s.batch!==batch) return false;
+    if (search && !s.name.toLowerCase().includes(search) && !String(s.rollNo).includes(search)) return false;
+    return true;
+  });
+  list = hybridSort(list,(a,b)=>a.rollNo-b.rollNo);
+  document.getElementById('studentCountLabel').textContent=`${list.length} students`;
+  const body = document.getElementById('studentTableBody');
+  if (!list.length) { body.innerHTML=`<tr><td colspan="9" class="empty">No students found.</td></tr>`; return; }
+  body.innerHTML = list.map(s=>{
+    const pct = getAttPct(s);
+    return `<tr>
+      <td class="mono">${s.rollNo}</td>
+      <td>${s.name}</td>
+      <td><span class="badge ${deptBadge(s.dept)}">${s.dept}</span></td>
+      <td><span class="badge badge-blue">${yearLabel(s.year)} Yr</span></td>
+      <td><span class="badge badge-cyan">Batch ${s.batch}</span></td>
+      <td style="color:var(--green)">${s.present}</td>
+      <td style="color:var(--red)">${s.absent}</td>
+      <td>
+        <div class="pct-cell">
+          <span style="font-weight:700;color:${pctColor(pct)}">${pct}%</span>
+          <div class="pbar-wrap"><div class="pbar-fill" style="width:${pct}%;background:${pctColor(pct)}"></div></div>
+        </div>
+      </td>
+      <td><span class="badge ${pctBadgeClass(pct)}">${pct>=85?'Good':pct>=75?'OK':'Low'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderStats() {
+  const total = students.length;
+  const totalPresent = students.reduce((sum,s)=>sum+s.present,0);
+  const totalAbsent = students.reduce((sum,s)=>sum+s.absent,0);
+  const belowLimit = students.filter(s=>getAttPct(s)<75 && (s.present+s.absent)>0).length;
+  const avgPct = total ? Math.round(students.reduce((sum,s)=>sum+getAttPct(s),0)/total) : 0;
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card" style="--accent:var(--blue)">
+      <div class="stat-label">Total Students</div>
+      <div class="stat-value">${total}</div>
+      <div class="stat-sub">in database</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--green)">
+      <div class="stat-label">Avg Attendance</div>
+      <div class="stat-value">${avgPct}%</div>
+      <div class="stat-sub">across all students</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--green)">
+      <div class="stat-label">Total Present</div>
+      <div class="stat-value">${totalPresent}</div>
+      <div class="stat-sub">entries</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--red)">
+      <div class="stat-label">Total Absent</div>
+      <div class="stat-value">${totalAbsent}</div>
+      <div class="stat-sub">entries</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--amber)">
+      <div class="stat-label">Below 75%</div>
+      <div class="stat-value">${belowLimit}</div>
+      <div class="stat-sub">students at risk</div>
+    </div>
+  `;
+}
+
+function renderHistory() {
+  const list = actionHistoryDeque.toArray().slice().reverse();
+  document.getElementById('historyCountLabel').textContent=`${list.length} actions in deque`;
+  const box = document.getElementById('historyList');
+  if (!list.length) { box.innerHTML='<div class="empty">No actions recorded yet.</div>'; return; }
+  box.innerHTML = list.slice(0,30).map(a=>{
+    if (a.type==='add-student') {
+      return `<div class="history-item"><div class="h-icon" style="background:var(--green-bg);color:var(--green)">+</div>Added student Roll ${a.rollNo}</div>`;
+    }
+    const arrow = a.oldStatus ? `${a.oldStatus} → ${a.newStatus}` : a.newStatus;
+    const color = a.newStatus==='P'?'var(--green)':'var(--red)';
+    return `<div class="history-item"><div class="h-icon" style="background:var(--blue-bg);color:var(--blue)">✓</div><span>Roll <strong>${a.rollNo}</strong> on ${a.date}: <span style="color:${color};font-weight:700">${arrow}</span></span></div>`;
+  }).join('');
+}
+
+function renderAll() {
+  renderStats();
+  renderStudentTable();
+  renderHistory();
+  updateDSInfo();
+  // Refresh faculty view if visible
+  const facSection = document.getElementById('section-faculty');
+  if (facSection.classList.contains('active')) runFacultyView();
+  const tpSection = document.getElementById('section-threshold');
+  if (tpSection.classList.contains('active')) runThresholdPlanner();
+}
+
+// =====================================================
+// INIT
+// =====================================================
+document.addEventListener('DOMContentLoaded', ()=>{
+  // Set today's date
+  const d = document.getElementById('markDate');
+  if (d) d.value = todayStr();
+  const gd = document.getElementById('giveDate');
+  if (gd) gd.value = todayStr();
+  seedDemoData();
+  renderAll();
+});
+</script>
+</body>
+</html>
