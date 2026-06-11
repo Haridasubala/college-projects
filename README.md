@@ -268,7 +268,7 @@ SVD-Image-Denoising/
 ## Authors
 
 Haridasubala
-Moulisri
+Moulisri.
 
 
    
